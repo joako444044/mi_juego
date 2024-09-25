@@ -1,0 +1,45 @@
+body{
+    margin: 0%;
+    overflow: hidden;
+}
+#instrucciones {
+    position:absolute;
+    left:20px;
+    visibility: hidden;
+
+}
+
+.cartel{
+    background-image: url("wood.png");
+    width: 100%;
+    height: auto;
+    aspect-ratio: 10/1;
+    background-size: contain;
+    color: rgb(24, 37, 58);
+    font-size: 10px;
+}
+#obtained{
+    position:absolute;
+    left: 0;
+    top:45%;
+    background-color: rgba(22, 9, 50, 0.795);
+    color:azure;
+    border-radius: 0px 20px 20px 0px;
+    padding: 10px;
+    
+    visibility: hidden;
+}
+
+@keyframes apper{
+    0%{
+        transform: translateX(-100%);
+        visibility: visible;
+    }
+    50%{
+        transform: translateX(0%);
+    }
+    100%{
+        transform: translateX(-100%);
+        visibility: hidden;
+    }
+}
