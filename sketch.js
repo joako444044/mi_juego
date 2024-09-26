@@ -1,8 +1,8 @@
 
 var speed = 10;
 var scenariox = 1;
-var scenarioy = 1;
-var lis_messages = ["sona de campamento para escaladores", "montana peligrosa!!", "pantano de"]
+var scenarioy = 0;
+var lis_messages = [["sona de campamento para escaladores", "montana peligrosa!!", "pantano de"], ["risco fragil", "entrada al templo", "zona nevada"], ["lago del samurai", "no pasa", "cabana abandonada"]]
 var lis_scenarios = [];
 var obj_scene = 0;
 var rng1 = 0;
@@ -41,7 +41,7 @@ function setup() {
     character.addAnimation("walking", ch_walking_animation);
     character.addAnimation("attak", ch_atak_animation);
     character.scale = 0.5
-    character.objects = ["hiking boots", "dor's key"];
+    character.objects = [];
     cartel = createSprite(width * 0.1, height * 0.7);
     cartel.addImage(im_cartel);
     cartel.scale = 0.1
@@ -62,33 +62,39 @@ function movement() {
     obj_scene = info_scenario.find(scene => scene.nombre === scenarioy + "" + scenariox);
 
     if (keyDown(UP_ARROW)) {
-        character.y -= speed;
-        character.changeAnimation("walking");
-        if (character.scale > 0.05) {
-            character.scale -= 0.02
-            speed -= 0.4
+        if (!last_room || (character.y > 0 && last_room)) {
+            character.y -= speed;
+            if (character.scale > 0.05) {
+                character.scale -= 0.02
+                speed -= 0.4
+            }
+            character.changeAnimation("walking");
+
         }
     }
     else if (keyDown(DOWN_ARROW)) {
-        character.y += speed;
-        character.changeAnimation("walking");
-        if (character.scale < 0.7) {
-            character.scale += 0.02
-            speed += 0.4
-        }
-        if (scenarioy != 0 && character.y > height * 0.80) {
-            scenarioy -= 1;
+        if (!last_room || (character.y < height && last_room)) {
+            character.y += speed;
+            character.changeAnimation("walking");
+            if (character.scale < 0.7) {
+                character.scale += 0.02
+                speed += 0.4
+            }
         }
     }
     else if (keyDown(LEFT_ARROW)) {
-        character.x -= speed;
-        character.changeAnimation("walking");
-        character.mirrorX(1);
+        if (!last_room || (character.x > 0 && last_room)) {
+            character.x -= speed;
+            character.changeAnimation("walking");
+            character.mirrorX(1);
+        }
     }
     else if (keyDown(RIGHT_ARROW)) {
-        character.x += speed;
-        character.changeAnimation("walking");
-        character.mirrorX(-1);
+        if (!last_room || (character.x < width && last_room)) {
+            character.x += speed;
+            character.changeAnimation("walking");
+            character.mirrorX(-1);
+        }
 
     } else if (character.getAnimationLabel() != "attak") {
         character.changeAnimation("standing");
@@ -101,30 +107,31 @@ function movement() {
             character.attak = false;
         }, 500);
     }
-
-    if (character.x > width && scenariox != 2) {
-        scenariox += 1;
-        character.x = 70;
-        spawn_enemies();
-    } else if (character.x < 0 && scenariox != 0) {
-        scenariox -= 1
-        character.x = width * 0.95;
-        spawn_enemies();
-    } else if (scenarioy != 2 && character.y <= obj_scene.limity && character.objects[0] == "hiking boots") {
-        character.y = height * 0.6
-        scenarioy += 1;
-        if (scenarioy == 2 && character.objects[1] == undefined) {
-            scenarioy = 1
+    if (!last_room) {
+        if (character.x > width && scenariox != 2) {
+            scenariox += 1;
+            character.x = 70;
+            spawn_enemies();
+        } else if (character.x < 0 && scenariox != 0) {
+            scenariox -= 1
+            character.x = width * 0.95;
+            spawn_enemies();
+        } else if (scenarioy != 2 && character.y <= obj_scene.limity && character.objects[0] == "hiking boots") {
+            character.y = height * 0.6
+            scenarioy += 1;
+            if (scenarioy == 2 && character.objects[1] == undefined) {
+                scenarioy = 1
+            }
+            character.scale = 0.5;
+            speed = 10;
+            spawn_enemies();
+        } else if (scenarioy != 0 && character.y >= height * 1.1) {
+            character.y = height * 0.1
+            scenarioy -= 1;
+            character.scale = 0.5;
+            speed = 10;
+            spawn_enemies();
         }
-        character.scale = 0.5;
-        speed = 10;
-        spawn_enemies();
-    } else if (scenarioy != 0 && character.y >= height * 1.1) {
-        character.y = height * 0.1
-        scenarioy -= 1;
-        character.scale = 0.5;
-        speed = 10;
-        spawn_enemies();
     }
 
     if (scenarioy == 2 && scenariox == 1 && last_room == false) {
@@ -138,7 +145,7 @@ function movement() {
 function detect_cartel() {
     if (character.overlap(cartel)) {
         document.getElementById("instrucciones").style.visibility = "visible";
-        document.getElementById("message").innerHTML = lis_messages[scenariox];
+        document.getElementById("message").innerHTML = lis_messages[scenarioy][scenariox];
     } else {
         document.getElementById("instrucciones").style.visibility = "hidden";
     }
@@ -150,7 +157,7 @@ function spawn_enemies() {
         enemi = createSprite(obj_scene.spawnx + random(-200, 200), obj_scene.spawny + random(-200, 200));
         enemi.addAnimation("walk", enemi_walk);
         enemi.scale = random(1, 100) / 100
-        enemi.life = 1;
+        enemi.lives = 1;
         enemi.boss = false;
         grupo_enemies.add(enemi);
     }
@@ -168,20 +175,31 @@ function lose_live(character1, enemy1) {
             } else if (enemy_count == 2) {
                 character.objects.push("dor's key");
                 document.getElementById("obtained").style.animation = "apper 8s 1";
-                
+
             }
         } else {
             if (enemy1.getAnimationLabel() !== "inbulnerable") {
-                enemy1.life -= 1;
+                enemy1.lives -= 1;
                 console.log("si");
                 enemy1.changeAnimation("inbulnerable");
                 setTimeout(() => {
                     enemy1.changeAnimation("walk");
                 }, 4000);
             }
-            if (enemy1.life <= 0) {
+            if (enemy1.lives <= 0) {
                 console.log("kclde");
+
                 enemy1.destroy();
+                swal({
+                    title: `Fin del juego`,
+                    text: "Ganaste, salvaste el valle del mago, y sus hongos secuases",
+                    text: "Tu puntuación es: " + enemy_count,
+                    imageUrl:"./no.jpg",
+                    imageSize: "100x100",
+                    confirmButtonText: "volver a jugar"
+                }).then((value) => {
+                    location.reload();
+                });
             }
 
         }
@@ -194,7 +212,7 @@ function enemi_movement() {
 
     grupo_enemies.forEach(element => {
 
-        if (obj_scene.velocityx != "automatico" || (element.boss && element.life == 1)) {
+        if (obj_scene.velocityx != "automatico" || (element.boss && element.lives == 1)) {
             if (frameCount % 180 == 0) {
                 rng1 = random(obj_scene.velicityx, obj_scene.velocityy);
                 rng2 = random(obj_scene.velicityx, obj_scene.velocityy);
@@ -215,14 +233,14 @@ function enemi_movement() {
     })
 
 }
-    
-function spawn_boss(){
+
+function spawn_boss() {
     enemi = createSprite(width / 2, height / 2);
     enemi.addAnimation("walk", boss_walk);
     enemi.addAnimation("inbulnerable", boss_standing)
     enemi.scale = 1
     enemi.boss = true;
-    enemi.life = 3;
+    enemi.lives = 3;
     grupo_enemies.destroyEach();
     grupo_enemies.add(enemi);
     console.log("spawn")
