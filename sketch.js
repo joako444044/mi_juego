@@ -30,7 +30,7 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     rng1 = random(-20, 20);
     rng2 = random(-20, 20);
-    info_scenario = [{ "nombre": "00", "limity": height * 0.7, "spawnx": 500, "spawny": 700, "velocityx": "automatico", "velocityy": 0.2 }, { "nombre": "01", "limity": height * 0.5, "spawnx": 0, "spawny": 0 }, { "nombre": "02", "limity": height * 0.6, "spawnx": 500, "spawny": 300, "velicityx": -20, "velocityy": 20 }, { "nombre": "10", "limity": height * 0.5, "spawnx": 0, "spawny": 0 }, { "nombre": "11", "limity": height * 0.3, "spawnx": 500, "spawny": 500, "velocityx": "automatico", "velocityy": 0.5 }, { "nombre": "12", "limity": height * 0.7, "spawnx": 500, "spawny": 500, "velocityx": "automatico", "velocityy": rng1 / 20 }, { "nombre": "20", "limity": height * 0.7, "spawnx": 500, "spawny": 300, "velocityx": -5, "velocityy": 5 }, { "nombre": "21", "limity": height * 0.7, "velocityx": "automatico", "velocityy": 0.4 }, { "nombre": "22", "limity": height * 0.7 }];
+    info_scenario = [{ "nombre": "00", "limity": height * 0.7, "spawnx": 500, "spawny": 700, "velocityx": "automatico", "velocityy": 0.2 }, { "nombre": "01", "limity": height * 0.5, "spawnx": 0, "spawny": 0 }, { "nombre": "02", "limity": height * 0.6, "spawnx": 500, "spawny": 300, "velicityx": -20, "velocityy": 20 }, { "nombre": "10", "limity": height * 0.5, "spawnx": 0, "spawny": 0 }, { "nombre": "11", "limity": height * 0.3, "spawnx": 500, "spawny": 500, "velocityx": "automatico", "velocityy": 0.5 }, { "nombre": "12", "limity": height * 0.5, "spawnx": 500, "spawny": 500, "velocityx": "automatico", "velocityy": rng1 / 20 }, { "nombre": "20", "limity": height * 0.7, "spawnx": 500, "spawny": 300, "velocityx": -5, "velocityy": 5 }, { "nombre": "21", "limity": height * 0.7, "velocityx": "automatico", "velocityy": 0.4 }, { "nombre": "22", "limity": height * 0.7 }];
 
     enemy_count = 0;
     character = createSprite(width * 0.5, height * 0.9);
@@ -160,6 +160,7 @@ function spawn_enemies() {
         enemi.lives = 1;
         enemi.boss = false;
         grupo_enemies.add(enemi);
+        console.log(obj_scene.spawnx)
     }
 }
 function lose_live(character1, enemy1) {
@@ -197,10 +198,12 @@ function lose_live(character1, enemy1) {
                     imageUrl:"./no.jpg",
                     imageSize: "100x100",
                     confirmButtonText: "volver a jugar"
-                }).then((value) => {
+                },
+                function(){ 
                     location.reload();
                 });
             }
+            
 
         }
     } else {
